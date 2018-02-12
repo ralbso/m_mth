@@ -11,13 +11,14 @@ from random import shuffle
 # from matlab import engine
 import datetime
 import numpy
+import time
 import os
 
-mouse = 'LF18'
-date = '20180209'
+mouse = 'LF' + str(input('Mouse ID: '))
+date = str(time.strftime("%Y%m%d"))
 
-imaging_session = '000'
-data_set = '000'
+imaging_session = str(input('Session: '))
+data_set = str(input('Data set: '))
 
 # start up matlab engine for scanbox
 # matlab = engine.start_matlab()
