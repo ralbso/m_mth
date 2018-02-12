@@ -8,7 +8,7 @@ from psychopy import visual, core, event
 # from psychopy.visual import windowwarp
 from gratings import drifting_gratings
 from random import shuffle
-from matlab import engine
+# from matlab import engine
 import datetime
 import numpy
 import os
@@ -29,13 +29,13 @@ warping = False
 imaging_session_directory = '/Users' + os.sep + 'Raul' + os.sep + 'img' + os.sep + str(date)
 
 # gratings orientations in degrees
-orientations = numpy.linspace(0, 45, 90, 135)
+orientations = numpy.linspace(270.0, 585.0, 8)
 
 # gratings cycles per degree
-spatial_frequencies = [0.05]
+spatial_frequencies = [0.1]
 
 # cycles per second
-temporal_frequencies = [1.0, 2.0, 4.0, 8.0, 16.0]
+temporal_frequencies = [1.0]
 
 grating_repetitions = 10
 
@@ -57,12 +57,15 @@ shuffle(grating_order)
 print('grating order: ' + str(grating_order))
 
 # create a fullscreen window for display
-main_window = visual.Window(monitor = 'NLW1', fullscr = True, color = [idle_color, idle_color, idle_color], useFBO = True, screen = 2)
+# set 'monitor' to monitor to be used (i.e. 'NLW1', 'VR1', etc.)
+main_window = visual.Window(monitor = 'testMonitor', fullscr = True, color = [idle_color, idle_color, idle_color], useFBO = True, screen = 2)
+second_window = visual.Window(monitor = 'testMonitor2', fullscr = True, color = [idle_color, idle_color, idle_color], useFBO = True, screen = 3)
 
 if warping:
 
     # add a spherical warping
     main_warper = windowwarp.Warper(main_window, warp = 'spherical', warpGridsize = 300, eyepoint = [0.5, 0.5], flipHorizontal = False, flipVertical = False)
+    second_warper = windowwarp.Warper(second_window, warp = 'spherical', warpGridsize = 300, eyepoint = [0.5, 0.5], flipHorizontal = False, flipVertical = False)
 
 print('Ready...')
 
@@ -70,6 +73,7 @@ print('Ready...')
 while True:
     if event.getKeys(keyList = ['escape']):
         main_window.close()
+        second_window.close()
         core.quit()
     if event.getKeys(keyList = ['space']):
         break
@@ -79,6 +83,7 @@ while True:
 print('Initializing...')
 
 main_window.color = [0, 0, 0]
+second_window.color = [0, 0, 0]
 
 clock = core.Clock()
 
@@ -92,11 +97,13 @@ while end - start <= 10.0:
     if event.getKeys(keyList = ['escape']):
         # matlab.scanboxUDP('S')
         main_window.close()
+        second_window.close()
         core.quit()
     if event.getKeys(keyList = ['space']):
         break
 
     main_window.flip()
+    second_window.flip()
 
 grating_times = []
 
@@ -113,7 +120,7 @@ for orientation, spatial_frequency, temporal_frequency in grating_order:
 
     grating_times.append([orientation, spatial_frequency, temporal_frequency, time])
 
-    command = drifting_gratings(grating_type, orientation, spatial_frequency, temporal_frequency, presentation_time = 2.0, blank_time = 3.0, windows = [main_window])
+    command = drifting_gratings(grating_type, orientation, spatial_frequency, temporal_frequency, presentation_time = 2.0, blank_time = 3.0, windows = [main_window, second_window])
 
     temp = str(datetime.datetime.now().time())
     temp = temp.split(':')
@@ -129,6 +136,7 @@ for orientation, spatial_frequency, temporal_frequency in grating_order:
         # matlab.scanboxUDP('S')
         numpy.savetxt(file_name, grating_times)
         main_window.close()
+        second_window.close()
         core.quit()
 
 numpy.savetxt(file_name, grating_times)
@@ -136,4 +144,5 @@ numpy.savetxt(file_name, grating_times)
 print("That's it!")
 
 main_window.close()
+second_window.close()
 core.quit()
