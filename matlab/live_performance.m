@@ -30,15 +30,15 @@ file_path = fullfile(path, file_name);
 %% Load .csv with session data
 data = dlmread(file_path);
 
-t = data(:,1);                  % Time
-pos = data(:,2);                % Position
-t_frame = data(:,3);            % Time since last frame
-vel = data(:,4);                % Velocity
-vr_world = data(:,5);           % Current trial (short, long, blackbox)
-valve_stat = data(:,6);         % Valve status
-num_trials = data(:,7);         % Number of trials
-licks = data(:,8);              % Number of licks
-wheel_vel = data(:,9);          % Wheel velocity
+% t = data(:,1);                  % Time
+pos = data(:,2);                  % Position
+% t_frame = data(:,3);            % Time since last frame
+vel = data(:,4);                  % Velocity
+vr_world = data(:,5);             % Current trial (short, long, blackbox)
+valve_stat = data(:,6);           % Valve status
+num_trials = data(:,7);           % Number of trials
+licks = data(:,8);                % Number of licks
+% wheel_vel = data(:,9);          % Wheel velocity
 
 %% Data on short tracks
 short = vr_world == 3;                         % Short track is track 3
