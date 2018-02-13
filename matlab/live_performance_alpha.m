@@ -40,12 +40,12 @@ end
 figure
 
 % Short trial setup
-short_plot = subplot(10,5,[2 28]);
+handles.short_plot = subplot(10,5,[2 28]);
 hold on
     xlabel('Location (cm)')
     xlim([50 360])
-    try ylim([0 y]); catch; end 
-    ylabel('Trial #') 
+    ylabel('Trial #')
+    ylim([0 200])
     title('Short trials') 
     
     % Adds reference lines for landmark
@@ -57,11 +57,12 @@ hold on
     vline([320 340], {'k', 'k'})
     annotation('rectangle', [.542 .445 .019 .48],'FaceColor', 'blue','FaceAlpha',.1)
     hold on;
-        
-long_plot = subplot(10,5,[4 30]);
+
+% Long trial setup
+handles.long_plot = subplot(10,5,[4 30]);
     xlabel('Location (cm)')
     xlim([50 420])
-    try ylim([0 y]); catch; end
+    ylim([0 200])
     title('Long trials')
     
     % Adds reference lines for landmark
@@ -73,11 +74,11 @@ long_plot = subplot(10,5,[4 30]);
     annotation('rectangle', [.874 .445 .016 .48],'FaceColor','magenta','FaceAlpha',.1)
     hold on;
 
-first_licks_plot = subplot(10,5,[37 50]);
+handles.first_licks_plot = subplot(10,5,[37 50]);
     legend('Short track', 'Long track')
     xlabel('Location (cm)')
     xlim([190 420])
-    try ylim([0 y]); catch; end
+    ylim([0 200])
     title('First licks')
     
     vline([200 240], {'k', 'k'})
@@ -94,7 +95,7 @@ first_licks_plot = subplot(10,5,[37 50]);
     
     % Figure parameters
     x0 = 350;       % x position on screen
-    y0 = 200;       % y Position on screen
+    y0 = 200;       % 200 Position on screen
     width = 900;    
     height = 600;   
     set(gcf, 'units','points','position',[x0,y0,width,height])
@@ -211,14 +212,14 @@ while length(data) <= 191000
     %% Plotting
 
         % Short trials
-        plot(short_plot, pos_licks_short, trial_licks_short, 'bo');
+        plot(handles.short_plot, pos_licks_short, trial_licks_short, 'bo');
         linkdata on
 
-        plot(short_plot, pos_triggered_short, trial_triggered_short, 'g*');
+        plot(handles.short_plot, pos_triggered_short, trial_triggered_short, 'g*');
         linkdata on
         hold on;
 
-        plot(short_plot, pos_short_def, trial_short_def, 'r*');
+        plot(handles.short_plot, pos_short_def, trial_short_def, 'r*');
         linkdata on
         hold on;
 
@@ -271,7 +272,6 @@ while length(data) <= 191000
     
     data = dlmread(file_path);
 end
-
 %% Update graph in real-time
 
 % Idea: If location >= 350 (short trial over), add new data points
