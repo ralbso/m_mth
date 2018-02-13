@@ -36,8 +36,27 @@ catch
     data = dlmread(file_path);
 end
 
+%% Figure setup
 figure
+
+% Short trial setup
 short_plot = subplot(10,5,[2 28]);
+    xlabel('Location (cm)')
+    xlim([50 360])
+    try ylim([0 y]); catch; end 
+    ylabel('Trial #') 
+    title('Short trials') 
+    
+    % Adds reference lines for landmark
+    vline([200 240], {'k', 'k'})
+    annotation('rectangle',[.432 .445 .036 .48],'FaceColor','black','FaceAlpha',.1)
+
+    % Adds reference lines for reward zone
+        vline([320 340], {'k', 'k'})
+        annotation('rectangle', [.542 .445 .019 .48],'FaceColor', 'blue','FaceAlpha',.1)
+        hold on;
+    
+long_plot = subplot(10,5,[4 30])
 
 while length(data) <= 191000
 
@@ -148,39 +167,25 @@ while length(data) <= 191000
         avg_first_lick_long = 'No licks';
     end
 
-    %% Figure setup
+    %% Plotting
 
         % Short trials
         plot(short_plot, pos_licks_short, trial_licks_short, 'bo');
-        %linkdata on
+        linkdata on
 
-        xlabel('Location (cm)')
-        xlim([50 360])
-        try ylim([0 y]); catch; end 
-        ylabel('Trial #') 
-        title('Short trials') 
+        
 
-        % Adds reference lines for landmark
-        vline([200 240], {'k', 'k'})
-        annotation('rectangle',[.432 .445 .036 .48],'FaceColor','black','FaceAlpha',.1)
-
-        % Adds reference lines for reward zone
-        vline([320 340], {'k', 'k'})
-        annotation('rectangle', [.542 .445 .019 .48],'FaceColor', 'blue','FaceAlpha',.1)
+        plot(short_plot, pos_triggered_short, trial_triggered_short, 'g*');
+        linkdata on
         hold on;
 
-        plot(pos_triggered_short, trial_triggered_short, 'g*');
-        %linkdata on
-        hold on;
-
-        plot(pos_short_def, trial_short_def, 'r*');
-        %linkdata on
+        plot(short_plot, pos_short_def, trial_short_def, 'r*');
+        linkdata on
         hold on;
 
         % Long trials
-        subplot(10,5,[4 30])
-        plot(pos_licks_long, trial_licks_long, 'bo');
-        %linkdata on
+        plot(long_plot, pos_licks_long, trial_licks_long, 'bo');
+        linkdata on
 
         xlabel('Location (cm)')
         xlim([50 420])

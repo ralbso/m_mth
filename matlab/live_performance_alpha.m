@@ -36,8 +36,68 @@ catch
     data = dlmread(file_path);
 end
 
+%% Figure setup
 figure
+
+% Short trial setup
 short_plot = subplot(10,5,[2 28]);
+hold on
+    xlabel('Location (cm)')
+    xlim([50 360])
+    try ylim([0 y]); catch; end 
+    ylabel('Trial #') 
+    title('Short trials') 
+    
+    % Adds reference lines for landmark
+    vline([200 240], {'k', 'k'})
+    annotation('rectangle',[.432 .445 .036 .48],'FaceColor','black','FaceAlpha',.1)
+    hold on;
+
+    % Adds reference lines for reward zone
+    vline([320 340], {'k', 'k'})
+    annotation('rectangle', [.542 .445 .019 .48],'FaceColor', 'blue','FaceAlpha',.1)
+    hold on;
+        
+long_plot = subplot(10,5,[4 30]);
+    xlabel('Location (cm)')
+    xlim([50 420])
+    try ylim([0 y]); catch; end
+    title('Long trials')
+    
+    % Adds reference lines for landmark
+    vline([200 240], {'k', 'k'})
+    annotation('rectangle',[.734 .445 .0325 .48],'FaceColor','black','FaceAlpha',.1)
+        
+    % Adds reference lines for reward zone box
+    vline([380 400], {'k', 'k'})
+    annotation('rectangle', [.874 .445 .016 .48],'FaceColor','magenta','FaceAlpha',.1)
+    hold on;
+
+first_licks_plot = subplot(10,5,[37 50]);
+    legend('Short track', 'Long track')
+    xlabel('Location (cm)')
+    xlim([190 420])
+    try ylim([0 y]); catch; end
+    title('First licks')
+    
+    vline([200 240], {'k', 'k'})
+    annotation('rectangle', [.32 .11 .1052 .227], 'FaceColor','black','FaceAlpha',.1)
+    hold on;
+
+    vline([320 340], {'k', 'k'})
+    annotation('rectangle', [.6393 .11 .0522 .227], 'FaceColor','blue','FaceAlpha',.1)
+    hold on;
+
+    vline([380 400], {'k', 'k'})
+    annotation('rectangle', [.799 .11 .0522 .227], 'FaceColor','magenta','FaceAlpha',.1)
+    hold on;
+    
+    % Figure parameters
+    x0 = 350;       % x position on screen
+    y0 = 200;       % y Position on screen
+    width = 900;    
+    height = 600;   
+    set(gcf, 'units','points','position',[x0,y0,width,height])
 
 while length(data) <= 191000
 
@@ -148,87 +208,38 @@ while length(data) <= 191000
         avg_first_lick_long = 'No licks';
     end
 
-    %% Figure setup
+    %% Plotting
 
         % Short trials
         plot(short_plot, pos_licks_short, trial_licks_short, 'bo');
-        %linkdata on
+        linkdata on
 
-        xlabel('Location (cm)')
-        xlim([50 360])
-        try ylim([0 y]); catch; end 
-        ylabel('Trial #') 
-        title('Short trials') 
-
-        % Adds reference lines for landmark
-        vline([200 240], {'k', 'k'})
-        annotation('rectangle',[.432 .445 .036 .48],'FaceColor','black','FaceAlpha',.1)
-
-        % Adds reference lines for reward zone
-        vline([320 340], {'k', 'k'})
-        annotation('rectangle', [.542 .445 .019 .48],'FaceColor', 'blue','FaceAlpha',.1)
+        plot(short_plot, pos_triggered_short, trial_triggered_short, 'g*');
+        linkdata on
         hold on;
 
-        plot(pos_triggered_short, trial_triggered_short, 'g*');
-        %linkdata on
-        hold on;
-
-        plot(pos_short_def, trial_short_def, 'r*');
-        %linkdata on
+        plot(short_plot, pos_short_def, trial_short_def, 'r*');
+        linkdata on
         hold on;
 
         % Long trials
-        subplot(10,5,[4 30])
-        plot(pos_licks_long, trial_licks_long, 'bo');
-        %linkdata on
+        plot(long_plot, pos_licks_long, trial_licks_long, 'bo');
+        linkdata on
 
-        xlabel('Location (cm)')
-        xlim([50 420])
-        try ylim([0 y]); catch; end
-        title('Long trials')
-
-        % Adds reference lines for landmark
-        vline([200 240], {'k', 'k'})
-        annotation('rectangle',[.734 .445 .0325 .48],'FaceColor','black','FaceAlpha',.1)
-
-        % Adds reference lines for reward zone box
-        vline([380 400], {'k', 'k'})
-        annotation('rectangle', [.874 .445 .016 .48],'FaceColor','magenta','FaceAlpha',.1)
+        plot(long_plot, pos_triggered_long, trial_triggered_long, 'g*');
+        linkdata on
         hold on;
 
-        plot(pos_triggered_long, trial_triggered_long, 'g*');
-        %linkdata on
-        hold on;
-
-        plot(pos_long_def, trial_long_def, 'r*');
-        %linkdata on
+        plot(long_plot, pos_long_def, trial_long_def, 'r*');
+        linkdata on
         hold on;
 
         % First licks
-        subplot(10,5,[37 50])
-        plot(first_licks_short(:,1), first_licks_short(:,2), 'bo');
-        %linkdata on
+        plot(first_licks_plot, first_licks_short(:,1), first_licks_short(:,2), 'bo');
+        linkdata on
         hold on;
-        plot(first_licks_long(:,1), first_licks_long(:,2), 'ro');
-        %linkdata on
-        hold on;
-
-        legend('Short track', 'Long track')
-        xlabel('Location (cm)')
-        xlim([190 420])
-        try ylim([0 y]); catch; end
-        title('First licks')
-
-        vline([200 240], {'k', 'k'})
-        annotation('rectangle', [.32 .11 .1052 .227], 'FaceColor','black','FaceAlpha',.1)
-        hold on;
-
-        vline([320 340], {'k', 'k'})
-        annotation('rectangle', [.6393 .11 .0522 .227], 'FaceColor','blue','FaceAlpha',.1)
-        hold on;
-
-        vline([380 400], {'k', 'k'})
-        annotation('rectangle', [.799 .11 .0522 .227], 'FaceColor','magenta','FaceAlpha',.1)
+        plot(first_licks_plot, first_licks_long(:,1), first_licks_long(:,2), 'ro');
+        linkdata on
         hold on;
 
         % Adds textbox for session information
@@ -255,14 +266,8 @@ while length(data) <= 191000
         text(0.025,0.4,descr)
         
         catch
+            error('Could not plot data')
         end
-
-        % Figure parameters
-        x0 = 350;       % x position on screen
-        y0 = 200;       % y Position on screen
-        width = 900;    
-        height = 600;   
-        set(gcf, 'units','points','position',[x0,y0,width,height])
     
     data = dlmread(file_path);
 end
