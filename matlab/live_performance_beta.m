@@ -202,22 +202,22 @@ while length(data) <= 191000
         hold on;
 
         % Long trials
-        plot(long_plot, pos_licks_long, trial_licks_long, 'bo');
+        plot(handles.long_plot, pos_licks_long, trial_licks_long, 'bo');
         linkdata on
 
-        plot(long_plot, pos_triggered_long, trial_triggered_long, 'g*');
+        plot(handles.long_plot, pos_triggered_long, trial_triggered_long, 'g*');
         linkdata on
         hold on;
 
-        plot(long_plot, pos_long_def, trial_long_def, 'r*');
+        plot(handles.long_plot, pos_long_def, trial_long_def, 'r*');
         linkdata on
         hold on;
 
         % First licks
-        plot(first_licks_plot, first_licks_short(:,1), first_licks_short(:,2), 'bo');
+        plot(handles.first_licks_plot, first_licks_short(:,1), first_licks_short(:,2), 'bo');
         linkdata on
         hold on;
-        plot(first_licks_plot, first_licks_long(:,1), first_licks_long(:,2), 'ro');
+        plot(handles.first_licks_plot, first_licks_long(:,1), first_licks_long(:,2), 'ro');
         linkdata on
         hold on;
 
@@ -245,7 +245,7 @@ while length(data) <= 191000
         text(0.025,0.4,descr)
         
         catch
-            error('Could not plot data')
+            warning('Cannot calculate statistics')
         end
     
     data = vr.data;

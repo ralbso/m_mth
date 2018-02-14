@@ -100,7 +100,7 @@ handles.first_licks_plot = subplot(10,5,[37 50]);
     height = 600;   
     set(gcf, 'units','points','position',[x0,y0,width,height])
 
-while length(data) <= 191000
+%while length(data) <= 191000
 
     % t = data(:,1);                  % Time
     pos = data(:,2);                  % Position
@@ -224,22 +224,22 @@ while length(data) <= 191000
         hold on;
 
         % Long trials
-        plot(long_plot, pos_licks_long, trial_licks_long, 'bo');
+        plot(handles.long_plot, pos_licks_long, trial_licks_long, 'bo');
         linkdata on
 
-        plot(long_plot, pos_triggered_long, trial_triggered_long, 'g*');
+        plot(handles.long_plot, pos_triggered_long, trial_triggered_long, 'g*');
         linkdata on
         hold on;
 
-        plot(long_plot, pos_long_def, trial_long_def, 'r*');
+        plot(handles.long_plot, pos_long_def, trial_long_def, 'r*');
         linkdata on
         hold on;
 
         % First licks
-        plot(first_licks_plot, first_licks_short(:,1), first_licks_short(:,2), 'bo');
+        plot(handles.first_licks_plot, first_licks_short(:,1), first_licks_short(:,2), 'bo');
         linkdata on
         hold on;
-        plot(first_licks_plot, first_licks_long(:,1), first_licks_long(:,2), 'ro');
+        plot(handles.first_licks_plot, first_licks_long(:,1), first_licks_long(:,2), 'ro');
         linkdata on
         hold on;
 
@@ -267,11 +267,11 @@ while length(data) <= 191000
         text(0.025,0.4,descr)
         
         catch
-            error('Could not plot data')
+            warning('Cannot calculate statistics')
         end
     
-    data = dlmread(file_path);
-end
+    %data = dlmread(file_path);
+%end
 %% Update graph in real-time
 
 % Idea: If location >= 350 (short trial over), add new data points
