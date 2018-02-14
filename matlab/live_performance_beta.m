@@ -1,39 +1,17 @@
-function live_performance_alpha(bin)
+function live_performance_beta()
 % LIVE_PERFORMANCE Quick glance at behavior during session.
 %   Function takes either 0 or 1 as arg.
 %   0 for latest session performance overview; 1 to select a session.
 %   Returns session performance overview.
 %   See also GETLATESTFILE, VLINE.
 
-%% File selection
-% Automatic selection of most recent .csv file in directory
-if bin == 0
-    file_name = getLatestFile('C:\vr\vroutput\*.csv');
-    path = 'C:\vr\vroutput\';
-end
-
-% Pop-up box for .csv file selection
-if bin == 1
-    [file_name, path] = uigetfile('*.csv', 'Select raw data', 'C:\vr\vroutput\');
-    if isequal(file_name, 0)
-        error('File selection was cancelled.')
-    end
-end
-
-% Arg can only be 0 or 1
-if bin > 1 || bin < 0
-    error('Arg can only be 0 or 1.')
-end
-
-file_path = fullfile(path, file_name); 
-
-%% Load .csv with session data
+%% Load session data
 % If no data has been written, wait 0.5 seconds before attempting read
 try
-    data = dlmread(file_path);
+    data = vr.data;
 catch
     pause(0.5)
-    data = dlmread(file_path);
+    data = vr.data;
 end
 
 %% Figure setup
@@ -184,7 +162,7 @@ while length(data) <= 191000
     trial_long_def = num_trials_long(default_long_ind);
 
     % set ylim value to change depending on the amount of trials
-    y = ((total_long_trials + total_short_trials)*2);
+    % y = ((total_long_trials + total_short_trials)*2);
     total_trials = (total_long_trials + total_short_trials);
 
     %% First licks
@@ -270,7 +248,7 @@ while length(data) <= 191000
             error('Could not plot data')
         end
     
-    data = dlmread(file_path);
+    data = vr.data;
 end
 %% Update graph in real-time
 
