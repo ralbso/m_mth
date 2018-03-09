@@ -1,15 +1,15 @@
-function live_performance_beta(position, vr_world, valve_status, trial_number, lick, ax1, ax2)
+function live_performance_gamma(position, vr_world, valve_status, trial_number, lick, ax1, ax2)
 % LIVE_PERFORMANCE Quick glance at behavior during session.
 %   Function takes data being generated, and the handles for each plot.
 %   Massive overhaul of performance.m
 %   Returns session performance plots in real time.
 %   See also GETLATESTFILE, VLINE, PERFORMANCE.
 
-%% General data
-
 triggered = false;
 default = false;
 licked = true;
+
+% Short track
 
 if vr_world == 3
 
@@ -38,6 +38,8 @@ if vr_world == 3
     elseif licked
        line(ax1, lick, trial_number, 'LineStyle', 'none', 'Marker', 'o', 'MarkerEdgeColor', 'b'); 
     end
+    
+% Long tracks
     
 elseif vr_world == 4
 
