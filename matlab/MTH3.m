@@ -389,8 +389,8 @@ function vr = runtimeCodeFun(vr)
            
     end
     
-    % save time values as close to vr.data's as possible
-    secs = toc(vr.sesstic);
+    % store time values as close to vr.data's as possible
+    secs = round(toc(vr.sesstic));
     
     vr.data(vr.line,:) = [toc(vr.sesstic), vr.position(2), vr.dt, vr.velocity(2), vr.currentWorld, vr.valvestat, vr.trial_counter, vr.licknum, vr.wheel_velocity];    
     vr.line = vr.line + 1;
@@ -402,12 +402,10 @@ function vr = runtimeCodeFun(vr)
         trial_counter = floor(vr.trial_counter/2);
     end
     
-    % calculates trials per minute, every minute
-    if mod(secs,1) == 0
-        vr.trials_per_min = vr.trials/60;
-        vr.trials = 0;
+    if mod(secs,60) == 0
+        vr.trials_per_min = vr.trial_counter/60;
     end
-    
+        
     vr.lastWorld = 0;
     vr.lastPosition = 0;
     
@@ -426,10 +424,12 @@ function vr = runtimeCodeFun(vr)
         vr.short_plot.YLim = [51 100];
         vr.long_plot.YLim = [51 100];
     end
-    
+
+ % do or do not, there is no
     try
        live_performance(vr.position(2), vr.lastPosition, vr.currentWorld, vr.lastWorld, vr.valvestat, trial_counter, vr.licknum, vr.short_plot, vr.long_plot)
     catch
+       dlmwrite(vr.config.fname,vr.data(1:vr.numframes,:),';');
        fclose(vr.mc);
        delete(vr.mc);
        warning('error plotting live performance')
