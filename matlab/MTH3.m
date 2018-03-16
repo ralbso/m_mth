@@ -149,7 +149,7 @@ function vr = initializationCodeFun(vr)
     
     %% In case of problems, comment this whole block
     % initialize figure for performance monitoring
-    figure('Position', [250 150 900 900]);
+    figure('Position', [100 100 900 900]);
     % set(gcf,'Renderer','OpenGL');
 
     % Short trial setup
@@ -386,6 +386,8 @@ function vr = runtimeCodeFun(vr)
         vr.blackbox_move_ref = vr.position(2);
         % start blackbox timer
         vr.blackbox_3_tic = tic;
+        % update trials per minute
+        vr.trials = vr.trials + 1;
            
     end
     
