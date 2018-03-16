@@ -158,7 +158,7 @@ function vr = initializationCodeFun(vr)
 
     vr.short_plot.XLimMode = 'manual';
     vr.short_plot.XLim = [50 350];
-    % vr.short_plot.YLim = [0 200];
+    vr.short_plot.YLim = [0 50];
     vr.short_plot.XLabel.String = 'Location (cm)';
     vr.short_plot.YLabel.String = 'Trial #';
     vr.short_plot.Title.String = 'Short trials'; 
@@ -176,7 +176,7 @@ function vr = initializationCodeFun(vr)
 
     vr.long_plot.XLimMode = 'manual';
     vr.long_plot.XLim = [50 410];
-    % vr.long_plot.YLim = [0 200];
+    vr.long_plot.YLim = [0 50];
     vr.long_plot.XLabel.String = 'Location (cm)';
     vr.long_plot.YLabel.String = 'Trial #';
     vr.long_plot.Title.String = 'Long trials';
@@ -395,9 +395,12 @@ function vr = runtimeCodeFun(vr)
     vr.data(vr.line,:) = [toc(vr.sesstic), vr.position(2), vr.dt, vr.velocity(2), vr.currentWorld, vr.valvestat, vr.trial_counter, vr.licknum, vr.wheel_velocity];    
     vr.line = vr.line + 1;
     
-    % counter; vr.trials_per_min initialized in init function
-    % value reset every minute
-    vr.trials = vr.trials + 1;
+    % Set trial counter to ignore blackbox as an actual trial
+    if mod(vr.trial_counter, 2) ~= 0
+        trial_counter = 1 + floor(vr.trial_counter/2);
+    else
+        trial_counter = floor(vr.trial_counter/2);
+    end
     
     % calculates trials per minute, every minute
     if mod(secs,1) == 0
@@ -413,15 +416,19 @@ function vr = runtimeCodeFun(vr)
         vr.lastPosition = vr.data(vr.line-2,2);
     end
     
-    vr.counter = vr.counter + 1;
-    
-    if vr.counter >= 50
-       cla(vr.short_plot);
-       cla(vr.long_plot);
+    if trial_counter > 150
+        vr.short_plot.YLim = [151 200];
+        vr.long_plot.YLim = [151 200];
+    elseif trial_counter > 100 && trial_counter <= 150
+        vr.short_plot.YLim = [101 150];
+        vr.long_plot.YLim = [101 150];
+    elseif trial_counter > 50 && trial_counter <= 100
+        vr.short_plot.YLim = [51 100];
+        vr.long_plot.YLim = [51 100];
     end
     
     try
-       live_performance(vr.position(2), vr.lastPosition, vr.currentWorld, vr.lastWorld, vr.valvestat, vr.trial_counter, vr.licknum, vr.short_plot, vr.long_plot)
+       live_performance(vr.position(2), vr.lastPosition, vr.currentWorld, vr.lastWorld, vr.valvestat, trial_counter, vr.licknum, vr.short_plot, vr.long_plot)
     catch
        fclose(vr.mc);
        delete(vr.mc);
