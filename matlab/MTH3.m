@@ -149,7 +149,7 @@ function vr = initializationCodeFun(vr)
     
     %% In case of problems, comment this whole block
     % initialize figure for performance monitoring
-    figure('Position', [250 150 900 900]);
+    figure('Position', [100 100 900 900]);
     % set(gcf,'Renderer','OpenGL');
 
     % Short trial setup
@@ -386,6 +386,8 @@ function vr = runtimeCodeFun(vr)
         vr.blackbox_move_ref = vr.position(2);
         % start blackbox timer
         vr.blackbox_3_tic = tic;
+        % update trials per minute
+        vr.trials = vr.trials + 1;
            
     end
     
@@ -426,14 +428,15 @@ function vr = runtimeCodeFun(vr)
         vr.short_plot.YLim = [51 100];
         vr.long_plot.YLim = [51 100];
     end
-    
-    try
+
+%    do or do not, there is no
+%    try
        live_performance(vr.position(2), vr.lastPosition, vr.currentWorld, vr.lastWorld, vr.valvestat, trial_counter, vr.licknum, vr.short_plot, vr.long_plot)
-    catch
-       fclose(vr.mc);
-       delete(vr.mc);
-       warning('error plotting live performance')
-    end
+%     catch
+%        fclose(vr.mc);
+%        delete(vr.mc);
+%        warning('error plotting live performance')
+%     end
 
     % check if maximum session length is reached and terminate VR if it is
     if toc(vr.sesstic) > (vr.config.s_length*60)
