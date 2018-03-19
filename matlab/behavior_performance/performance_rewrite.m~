@@ -111,10 +111,10 @@ avg_velocity = sum(velocities)/length(velocities);
 position_short_vector = zeros(length(data),2);
 
 for i = 1:length(data)
-    if short_position(i) >= 200 && licked(i) ~= 0
-        position_short_vector(i,:) = [short_position(licked(i)), short_trials(licked(i))];
-%         [~,first_lick_index_short,~] = unique(position_short_vector(i);
-%         first_lick_short = position_short_vector(first_lick_index_short
+    if short_position(i) >= 200
+        position_short_vector(i,1:2) = [short_position(licked(i)), short_trials(licked(i))];
+        [~,first_lick_index_short,~] = unique(position_short_vector(i);
+        first_lick_short = position_short_vector(first_lick_index_short
     end
 end
 

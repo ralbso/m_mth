@@ -406,6 +406,17 @@ function vr = runtimeCodeFun(vr)
         trial_counter = floor(vr.trial_counter/2);
     end
     
+    licked = false;
+    
+    if length(vr.current_trial_licks) > 50
+        current_trial_licks = [];
+    end
+    
+    if lick == 1 && valve
+        licked = true;
+        current_trial_licks(vr.line) = licked;
+    end
+    
     vr.lastWorld = 0;
     vr.lastPosition = 0;
     
@@ -429,10 +440,14 @@ function vr = runtimeCodeFun(vr)
 %         vr.trials_per_min = vr.trial_counter/60;
 %     end
     
-    if length(vr.live_data) >= 50
-        vr.live_data(vr.line,:) = [vr.position(2), vr.lastPosition, vr.currentWorld, vr.lastWorld, vr.valvestat, vr.trial_counter, vr.licknum];
-    else
-        vr.live_data = [];
+ % do or do not, there is no
+    try
+       live_performance(vr.position(2), vr.lastPosition, vr.currentWorld, vr.lastWorld, vr.valvestat, trial_counter, vr.licknum, vr.short_plot, vr.long_plot)
+    catch
+       dlmwrite(vr.config.fname,vr.data(1:vr.numframes,:),';');
+       fclose(vr.mc);
+       delete(vr.mc);
+       warning('error plotting live performance')
     end
 
     % check if maximum session length is reached and terminate VR if it is
