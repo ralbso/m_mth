@@ -407,10 +407,10 @@ function vr = runtimeCodeFun(vr)
         trial_counter = floor(vr.trial_counter/2);
     end
     
-    if mod(secs,60) == 0
-        vr.trials_per_min = vr.trial_counter/60;
-    end
-        
+%     if mod(secs,60) == 0
+%         vr.trials_per_min = vr.trial_counter/60;
+%     end
+%         
     vr.lastWorld = 0;
     vr.lastPosition = 0;
     
