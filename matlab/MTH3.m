@@ -17,7 +17,7 @@ end
 function vr = initializationCodeFun(vr)
    
     % init the serial connection to the microcontroller
-    vr.mc = serial('COM5');
+    vr.mc = serial('COM4');
     set(vr.mc,'BaudRate',115200);
     set(vr.mc,'TimeOut', 0.001);
     fopen(vr.mc);
@@ -190,11 +190,14 @@ function vr = initializationCodeFun(vr)
     annotation('rectangle', [0.895 0.195 0.05 0.35],'FaceColor','magenta','FaceAlpha',.1)
     
     vr.trials_per_min = 0;
-    vr.current_trial_licks = [];
+    vr.trials = 0;
+    vr.counter = 0;
     
     stats = annotation('textbox', [0.15 0.1 0.2 0], 'string', ['Trials per minute: ' vr.trials_per_min]);
     stats.FontSize = 14;
     stats.LineStyle = 'none';
+    
+    vr.is_blackbox = false;
     
     %%
     vr.blackbox_3_tic = tic;
@@ -325,7 +328,7 @@ function vr = runtimeCodeFun(vr)
     end
     
     if vr.currentWorld==5
-        vr.is_black_box = true;
+        vr.is_blackbox = true;
         % if animal licks in blackbox: reset timer
         if vr.config.trials{22}(vr.curconfigtrial)==1
             if vr.licknum > 0
@@ -388,24 +391,26 @@ function vr = runtimeCodeFun(vr)
         vr.blackbox_3_tic = tic;
         % update trials per minute
         vr.trials = vr.trials + 1;
-        % if it's not a black box
-        vr.is_black_box = false;
            
     end
     
     % store time values as close to vr.data's as possible
-    % secs = round(toc(vr.sesstic));
+    secs = round(toc(vr.sesstic));
     
     vr.data(vr.line,:) = [toc(vr.sesstic), vr.position(2), vr.dt, vr.velocity(2), vr.currentWorld, vr.valvestat, vr.trial_counter, vr.licknum, vr.wheel_velocity];    
     vr.line = vr.line + 1;
     
     % Set trial counter to ignore blackbox as an actual trial
-    if vr.is_black_box
+    if vr.is_blackbox
         trial_counter = 1 + floor(vr.trial_counter/2);
     else
         trial_counter = floor(vr.trial_counter/2);
     end
     
+    if mod(secs,60) == 0
+        vr.trials_per_min = vr.trial_counter/60;
+    end
+        
     vr.lastWorld = 0;
     vr.lastPosition = 0;
     
@@ -425,14 +430,14 @@ function vr = runtimeCodeFun(vr)
         vr.long_plot.YLim = [51 100];
     end
 
-%     if mod(secs,60) == 0
-%         vr.trials_per_min = vr.trial_counter/60;
-%     end
-    
-    if length(vr.live_data) >= 50
-        vr.live_data(vr.line,:) = [vr.position(2), vr.lastPosition, vr.currentWorld, vr.lastWorld, vr.valvestat, vr.trial_counter, vr.licknum];
-    else
-        vr.live_data = [];
+ % do or do not, there is no
+    try
+       live_performance(vr.position(2), vr.lastPosition, vr.currentWorld, vr.lastWorld, vr.valvestat, trial_counter, vr.licknum, vr.short_plot, vr.long_plot)
+    catch
+       dlmwrite(vr.config.fname,vr.data(1:vr.numframes,:),';');
+       fclose(vr.mc);
+       delete(vr.mc);
+       warning('error plotting live performance')
     end
 
     % check if maximum session length is reached and terminate VR if it is
