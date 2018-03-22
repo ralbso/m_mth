@@ -92,7 +92,6 @@ end
 total_trials = (num_trials(end));
 y = total_trials;
 
-
 %% Average velocity
 
 tempV = zeros(length(velocity),1);
@@ -109,33 +108,39 @@ avg_velocity = sum(velocities)/length(velocities);
 %% First lick per trial
 
 position_short_vector = zeros(length(data),2);
+position_long_vector = zeros(length(data),2);
 
 for i = 1:length(data)
     if short_position(i) >= 200 && licked(i) ~= 0
         position_short_vector(i,:) = [short_position(licked(i)), short_trials(licked(i))];
-%         [~,first_lick_index_short,~] = unique(position_short_vector(i);
-%         first_lick_short = position_short_vector(first_lick_index_short
+        [~,first_lick_index_short(i,:),~] = unique(position_short_vector(i));
+        first_lick_short(i,:) = position_short_vector(first_lick_index_short(i));
+    end
+    
+    if long_position(i) >= 200 && licked(i) ~= 0
+        position_long_vector(i,:) = [long_position(licked(i)), long_trials(licked(i))];
+        [~,first_lick_index_long(i,:),~] = unique(position_long_vector(i));
+        first_lick_long(i,:) = position_long_vector(first_lick_index_long(i));
     end
 end
 
-pos_trial_mat_short = [pos_licks_short(pos_licks_short>=200) trial_licks_short(pos_licks_short>=200)];
-[~,is,~] = unique(trial_licks_short(pos_licks_short>=200));
-first_licks_short = pos_trial_mat_short(is,:);
-
-pos_trial_mat_long = [pos_licks_long(pos_licks_long>=200) trial_licks_long(pos_licks_long>=200)];
-[~,il,~] = unique(trial_licks_long(pos_licks_long>=200));
-first_licks_long = pos_trial_mat_long(il,:);
-
-if max(first_licks_short(:,1)) ~= 0
-    avg_first_lick_short = mean(first_licks_short(:,1));
+% stage 5
+if max(first_lick_short(:,1)) ~= 0
+    average_first_lick_short = mean(first_lick_short(:,1));
 else
-    avg_first_lick_short = 'No licks';
+    average_first_lick_short = 0;
 end
 
-if max(first_licks_long(:,1)) ~= 0
-    avg_first_lick_long = mean(first_licks_long(:,1));
+if max(first_lick_long(:,1)) ~= 0
+    average_first_lick_long = mean(first_lick_long(:,1));
 else
-    avg_first_lick_long = 'No licks';
+    average_first_lick_long = 0;
+end
+
+if average_first_lick_long == 0
+    average_first_lick = average_first_lick_short;
+else
+    average_first_lick = (average_first_lick_short + average_first_lick_long)/2;
 end
 
 %% Figure setup
@@ -143,7 +148,6 @@ figure
     
     % Short trials
     subplot(10,5,[2 28])
-    short_all = line('XData', [pos_licks_short], trial_licks_short, 'bo')
     
     xlabel('Location (cm)')
     xlim([50 360])
@@ -158,17 +162,16 @@ figure
     % Adds reference lines for reward zone
     vline([320 340], {'k', 'k'})
     annotation('rectangle', [.542 .445 .019 .48],'FaceColor', 'blue','FaceAlpha',.1)
-    hold on;
     
-    short_trigg = plot(pos_triggered_short, trial_triggered_short, 'g*')
-    hold on;
+    % Plot licks on short track
+    plot(short_position, short_trials, 'bo');
     
-    short_def = plot(pos_short_def, trial_short_def, 'r*')
-    hold on;
+    plot(short_position(triggered), short_trials(triggered), 'g*');
+    
+    plot(short_position(default), short_trials(default), 'r*');
     
     % Long trials
     subplot(10,5,[4 30])
-    long_all = plot(pos_licks_long, trial_licks_long, 'bo')
     
     xlabel('Location (cm)')
     xlim([50 420])
@@ -182,20 +185,16 @@ figure
     % Adds reference lines for reward zone box
     vline([380 400], {'k', 'k'})
     annotation('rectangle', [.874 .445 .016 .48],'FaceColor','magenta','FaceAlpha',.1)
-    hold on;
     
-    long_trigg = plot(pos_triggered_long, trial_triggered_long, 'g*')
-    hold on;
+    % Plot licks on long track
+    plot(long_position, long_trials, 'bo');
     
-    long_def = plot(pos_long_def, trial_long_def, 'r*')
-    hold on;
+    plot(long_position(triggered), long_trials(triggered), 'g*');
+    
+    plot(long_position(default),long_trials(default), 'r*');
     
     % First licks
     subplot(10,5,[37 50])
-    short_first_lick = plot(first_licks_short(:,1), first_licks_short(:,2), 'bo');
-    hold on;
-    long_first_lick = plot(first_licks_long(:,1), first_licks_long(:,2), 'ro');
-    hold on;
     
     legend('Short track', 'Long track')
     xlabel('Location (cm)')
@@ -205,15 +204,18 @@ figure
     
     vline([200 240], {'k', 'k'})
     annotation('rectangle', [.32 .11 .1052 .227], 'FaceColor','black','FaceAlpha',.1)
-    hold on;
     
     vline([320 340], {'k', 'k'})
     annotation('rectangle', [.6393 .11 .0522 .227], 'FaceColor','blue','FaceAlpha',.1)
-    hold on;
     
     vline([380 400], {'k', 'k'})
     annotation('rectangle', [.799 .11 .0522 .227], 'FaceColor','magenta','FaceAlpha',.1)
-    hold on;
+    
+    % Short track's first licks
+    plot(first_lick_short(:,1), first_lick_short(:,2), 'bo');
+    
+    % Long track's first licks
+    plot(first_lick_long(:,1), first_lick_long(:,2), 'ro');
     
     % Adds textbox for session information
     axes('Position', [0.02 0.07 1 1], 'Visible', 'off');
@@ -227,13 +229,13 @@ figure
         num2str(total_long_trials);
         '';
         'Average velocity:';
-        [num2str(round(avg_vel,2)), ' cm/s'];
+        strcat(num2str(average_velocity), ' cm/s');
         '';
-        'Mean first lick (short trials):';
-        strcat(num2str(round(avg_first_lick_short,2)), ' cm');
-        ''
-        'Mean first lick (long trials):'
-        strcat(num2str(round(avg_first_lick_long,2)), ' cm')};
+        'Mean first lick:';
+        strcat(num2str(average_first_licks));
+        '';
+        'Median first lick:'
+        strcat(num2str(median_first_licks));};
     text(0.025,0.4,descr)
     
     % Figure parameters

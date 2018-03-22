@@ -147,6 +147,9 @@ function vr = initializationCodeFun(vr)
     vr.data = zeros(500000, 9);
     vr.line = 1;
     
+    vr.live_data = zeros(5000,7);
+    vr.live_line = 1;
+    
     %% In case of problems, comment this whole block
     % initialize figure for performance monitoring
     figure('Position', [100 100 900 900]);
@@ -189,11 +192,12 @@ function vr = initializationCodeFun(vr)
     vline([380 400], {'k', 'k'})
     annotation('rectangle', [0.895 0.195 0.05 0.35],'FaceColor','magenta','FaceAlpha',.1)
     
-    vr.trials_per_min = 0;
-    vr.trials = 0;
-    vr.counter = 0;
+%     vr.trials_per_min = 0;
+%     vr.trials = 0;
+%     vr.counter = 0;
+    vr.lick_counter = 0;
     
-    stats = annotation('textbox', [0.15 0.1 0.2 0], 'string', ['Trials per minute: ' vr.trials_per_min]);
+    stats = annotation('textbox', [0.15 0.1 0.2 0], 'string', 'Trials per minute: ');
     stats.FontSize = 14;
     stats.LineStyle = 'none';
     
@@ -390,12 +394,12 @@ function vr = runtimeCodeFun(vr)
         % start blackbox timer
         vr.blackbox_3_tic = tic;
         % update trials per minute
-        vr.trials = vr.trials + 1;
+        % vr.trials = vr.trials + 1;
            
     end
     
     % store time values as close to vr.data's as possible
-    secs = round(toc(vr.sesstic));
+    % secs = round(toc(vr.sesstic));
     
     vr.data(vr.line,:) = [toc(vr.sesstic), vr.position(2), vr.dt, vr.velocity(2), vr.currentWorld, vr.valvestat, vr.trial_counter, vr.licknum, vr.wheel_velocity];    
     vr.line = vr.line + 1;
@@ -430,14 +434,24 @@ function vr = runtimeCodeFun(vr)
         vr.long_plot.YLim = [51 100];
     end
 
- % do or do not, there is no
-    try
-       live_performance(vr.position(2), vr.lastPosition, vr.currentWorld, vr.lastWorld, vr.valvestat, trial_counter, vr.licknum, vr.short_plot, vr.long_plot)
-    catch
-       dlmwrite(vr.config.fname,vr.data(1:vr.numframes,:),';');
-       fclose(vr.mc);
-       delete(vr.mc);
-       warning('error plotting live performance')
+    if lick_num ~= 0
+        vr.live_data(vr.lick_line,:) = [vr.position(2), vr.lastPosition, vr.currentWorld, vr.lastWorld, vr.valvestat, trial_counter, vr.licknum];
+        vr.live_line = vr.live_line + 1;
+        vr.lick_counter = vr.lick_counter + 1;
+    end
+    
+    if vr.lick_counter >= 50
+        vr.lick_counter = 0;
+        vr.live_line = 0;
+        % do or do not, there is no
+        try
+           live_performance(vr.live_data, vr.short_plot, vr.long_plot)
+        catch
+           dlmwrite(vr.config.fname,vr.data(1:vr.numframes,:),';');
+           fclose(vr.mc);
+           delete(vr.mc);
+           warning('error plotting live performance')
+        end
     end
 
     % check if maximum session length is reached and terminate VR if it is

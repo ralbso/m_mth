@@ -9,7 +9,6 @@ default = false(length(live_data));
 triggered = false(length(live_data));
 licked = false(length(live_data));
 
-
 if ~isempty(live_data)
     position = live_data(:,1);
     last_position = live_data(:,2);
