@@ -143,11 +143,11 @@ function vr = initializationCodeFun(vr)
     resfid = fopen(vr.config.fname,'w');
     fclose(resfid);
     
-    % initialise data structure to hold data in memory
+    % initialise data structures to hold data in memory
     vr.data = zeros(500000, 9);
     vr.line = 1;
     
-    vr.live_data = zeros(5000,7);
+    vr.live_data = zeros(50000, 7);
     vr.live_line = 1;
     
     %% In case of problems, comment this whole block
@@ -195,7 +195,6 @@ function vr = initializationCodeFun(vr)
 %     vr.trials_per_min = 0;
 %     vr.trials = 0;
 %     vr.counter = 0;
-    vr.lick_counter = 0;
     
     stats = annotation('textbox', [0.15 0.1 0.2 0], 'string', 'Trials per minute: ');
     stats.FontSize = 14;
@@ -435,23 +434,23 @@ function vr = runtimeCodeFun(vr)
     end
 
     if lick_num ~= 0
-        vr.live_data(vr.lick_line,:) = [vr.position(2), vr.lastPosition, vr.currentWorld, vr.lastWorld, vr.valvestat, trial_counter, vr.licknum];
+        vr.live_data(vr.live_line,:) = [vr.position(2), vr.lastPosition, vr.currentWorld, vr.lastWorld, vr.valvestat, trial_counter, vr.licknum];
         vr.live_line = vr.live_line + 1;
-        vr.lick_counter = vr.lick_counter + 1;
     end
     
-    if vr.lick_counter >= 50
-        vr.lick_counter = 0;
-        vr.live_line = 0;
+    if vr.valvestat ~= 0
         % do or do not, there is no
-        try
-           live_performance(vr.live_data, vr.short_plot, vr.long_plot)
-        catch
-           dlmwrite(vr.config.fname,vr.data(1:vr.numframes,:),';');
-           fclose(vr.mc);
-           delete(vr.mc);
-           warning('error plotting live performance')
+        if toc(vr.blackbox_3_tic) == 1.5
+            try
+               live_performance(vr.live_line, vr.live_data, vr.short_plot, vr.long_plot)
+            catch
+               dlmwrite(vr.config.fname,vr.data(1:vr.numframes,:),';');
+               fclose(vr.mc);
+               delete(vr.mc);
+               warning('error plotting live performance')
+            end
         end
+        vr.live_line = 0;
     end
 
     % check if maximum session length is reached and terminate VR if it is
