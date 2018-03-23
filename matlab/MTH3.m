@@ -439,15 +439,16 @@ function vr = runtimeCodeFun(vr)
     end
     
     if vr.valvestat ~= 0
-        % do or do not, there is no
         if toc(vr.blackbox_3_tic) == 1.5
+            % do or do not, there is no
             try
                live_performance(vr.live_line, vr.live_data, vr.short_plot, vr.long_plot)
             catch
                dlmwrite(vr.config.fname,vr.data(1:vr.numframes,:),';');
                fclose(vr.mc);
                delete(vr.mc);
-               warning('error plotting live performance')
+               warning('Error plotting live performance.')
+               disp('         Saving session file...')
             end
         end
         vr.live_line = 0;
