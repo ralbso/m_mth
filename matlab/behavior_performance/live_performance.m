@@ -35,29 +35,18 @@ for i = 1:length(live_data)
     end
 end
 
-if vr_world(i) == 3
-    if triggered(i)
-        axes(short_ax)
-        line('XData',[position(i),position(i)],'YData',[trial_number(i)-1,trial_number(i)-1], 'LineStyle', 'none', 'Marker', '*', 'MarkerEdgeColor', 'g');
-    elseif default(i)
-        axes(short_ax)
-        line('XData',[position(i),position(i)],'YData',[trial_number(i)-1,trial_number(i)-1], 'LineStyle', 'none', 'Marker', '*', 'MarkerEdgeColor', 'r');
-    elseif licked(i)
-        axes(short_ax)
-        line('XData',[position(i),position(i)],'YData',[trial_number(i),trial_number(i)], 'LineStyle', 'none', 'Marker', 'o', 'MarkerEdgeColor', 'b'); 
-    end
+if vr_world(1) == 3
+    axes(short_ax)
+    line('XData',[position(triggered),position(triggered)],'YData',[trial_number(triggered)-1,trial_number(triggered)-1], 'LineStyle', 'none', 'Marker', '*', 'MarkerEdgeColor', 'g');
+    line('XData',[position(default),position(default)],'YData',[trial_number(default)-1,trial_number(default)-1], 'LineStyle', 'none', 'Marker', '*', 'MarkerEdgeColor', 'r');
+    line('XData',[position(licked),position(licked)],'YData',[trial_number(licked),trial_number(licked)], 'LineStyle', 'none', 'Marker', 'o', 'MarkerEdgeColor', 'b'); 
 end
 
-if vr_world(i) == 4
-    if triggered(i)
-        axes(long_ax)
-        line('XData',[position(i),position(i)],'YData',[trial_number(i)-1,trial_number(i)-1], 'LineStyle', 'none', 'Marker', '*', 'MarkerEdgeColor', 'g');
-    elseif default(i) 
-        axes(long_ax)
-        line('XData',[position(i),position(i)],'YData',[trial_number(i)-1,trial_number(i)-1], 'LineStyle', 'none', 'Marker', '*', 'MarkerEdgeColor', 'r');
-    elseif licked(i)
-        axes(long_ax)
-        line('XData',[position(i),position(i)],'YData',[trial_number(i),trial_number(i)], 'LineStyle', 'none', 'Marker', 'o', 'MarkerEdgeColor', 'b');
-    end
+if vr_world(1) == 4
+    axes(long_ax)
+    line('XData',[position(triggered),position(triggered)],'YData',[trial_number(triggered)-1,trial_number(triggered)-1], 'LineStyle', 'none', 'Marker', '*', 'MarkerEdgeColor', 'g');
+    line('XData',[position(default),position(default)],'YData',[trial_number(default)-1,trial_number(default)-1], 'LineStyle', 'none', 'Marker', '*', 'MarkerEdgeColor', 'r');
+    line('XData',[position(licked),position(licked)],'YData',[trial_number(licked),trial_number(licked)], 'LineStyle', 'none', 'Marker', 'o', 'MarkerEdgeColor', 'b');
 end
+
 end
