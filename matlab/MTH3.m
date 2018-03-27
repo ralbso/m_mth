@@ -332,6 +332,7 @@ function vr = runtimeCodeFun(vr)
     
     if vr.currentWorld==5
         vr.is_blackbox = true;
+        vr.time_in_blackbox = tic;
         % if animal licks in blackbox: reset timer
         if vr.config.trials{22}(vr.curconfigtrial)==1
             if vr.licknum > 0
@@ -405,9 +406,12 @@ function vr = runtimeCodeFun(vr)
     
     % Set trial counter to ignore blackbox as an actual trial
     if vr.is_blackbox
-        trial_counter = 1 + floor(vr.trial_counter/2);
-    else
         trial_counter = floor(vr.trial_counter/2);
+        vr.is_blackbox = false;
+    elseif vr.trial_counter == 1
+        trial_counter = 1;
+    elseif ~vr.is_blackbox
+        trial_counter = 1 + floor(vr.trial_counter/2);
     end
     
 %     if mod(secs,60) == 0
@@ -433,25 +437,24 @@ function vr = runtimeCodeFun(vr)
         vr.long_plot.YLim = [51 100];
     end
 
-    if lick_num ~= 0
+    if vr.licknum ~= 0 || vr.valvestat ~= 0
         vr.live_data(vr.live_line,:) = [vr.position(2), vr.lastPosition, vr.currentWorld, vr.lastWorld, vr.valvestat, trial_counter, vr.licknum];
         vr.live_line = vr.live_line + 1;
     end
-    
+        
     if vr.valvestat ~= 0
-        if toc(vr.blackbox_3_tic) == 1.5
+        if vr.time_in_blackbox >= 1.5
             % do or do not, there is no
-            try
-               live_performance(vr.live_line, vr.live_data, vr.short_plot, vr.long_plot)
-            catch
-               dlmwrite(vr.config.fname,vr.data(1:vr.numframes,:),';');
-               fclose(vr.mc);
-               delete(vr.mc);
-               warning('Error plotting live performance.')
-               disp('         Saving session file...')
-            end
+%             try
+                live_performance(vr.live_line, vr.live_data, vr.short_plot, vr.long_plot)
+                vr.live_line = 1;
+%             catch
+%                 dlmwrite(vr.config.fname,vr.data(1:vr.numframes,:),';');
+%                 fclose(vr.mc);
+%                 delete(vr.mc);
+%                 warning('error plotting live performance')
+%             end
         end
-        vr.live_line = 0;
     end
 
     % check if maximum session length is reached and terminate VR if it is
