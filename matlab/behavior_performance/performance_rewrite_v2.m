@@ -206,7 +206,7 @@ end
 median_first_licks = median([short_first_licks(:,1); long_first_licks(:,1)], 'omitnan');
 
 %% Figure setup
-figure('Name',file_name,'Position',[680 400 560 420])
+figure('Name',file_name)
     
     % Short trials
     subplot(10,5,[2 28])
@@ -273,12 +273,14 @@ figure('Name',file_name,'Position',[680 400 560 420])
     annotation('rectangle', [.799 .11 .0522 .227], 'FaceColor','magenta','FaceAlpha',.1)
     
     % Short track's first licks
-    line([short_first_licks(:,1),short_first_licks(:,1)],[short_first_licks(:,2),short_first_licks(:,2)],'LineStyle','none','Marker','o','MarkerEdgeColor', 'b');
+    line([short_first_licks(:,1),short_first_licks(:,1)],[short_first_licks(:,2),short_first_licks(:,2)],'LineStyle','none','Marker','o','MarkerEdgeColor', 'b','DisplayName', 'Short track');
+    hold on
     
     % Long track's first licks
-    line([long_first_licks(:,1),long_first_licks(:,1)],[long_first_licks(:,2),long_first_licks(:,2)],'LineStyle','none','Marker','o','MarkerEdgeColor','r');
+    line([long_first_licks(:,1),long_first_licks(:,1)],[long_first_licks(:,2),long_first_licks(:,2)],'LineStyle','none','Marker','o','MarkerEdgeColor','r','DisplayName','Long track');
+    hold on
     
-    legend(['Short track'], ['Long track'])
+    legend('show')
     
     % Adds textbox for session information
     axes('Position', [0.02 0.07 1 1], 'Visible', 'off');
@@ -303,7 +305,7 @@ figure('Name',file_name,'Position',[680 400 560 420])
     
     % Figure parameters
     x0 = 350;       % x position on screen
-    y0 = 200;       % y Position on screen
+    y0 = 170;       % y Position on screen
     width = 900;    
     height = 600;   
     set(gcf, 'units','points','position',[x0,y0,width,height])
