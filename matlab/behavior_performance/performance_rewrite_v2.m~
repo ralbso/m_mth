@@ -64,60 +64,75 @@ velocity = data(:,4);           % Velocity
 vr_world = data(:,5);           % Current trial (short, long, blackbox)
 valve_status = data(:,6);       % Valve status
 num_trials = data(:,7);         % Number of trials
-lick = data(:,8);               % Number of licks
+licks = data(:,8);               % Number of licks
 % wheel_vel = data(:,9);        % Wheel velocity
+
+lines = length(data);
 
 %% Your run of the mill setup for quick n' dirty plots
 
-default = false(length(data),1);
-triggered = false(length(data),1);
-
-licked = false(length(data),1);
-
-short_trials = zeros(length(data),1);
-short_position = zeros(length(data),1);
-
-long_trials = zeros(length(data),1);
-long_position = zeros(length(data),1);
-
-% Get actual trial number
-for i = 1:length(data)
-    if mod(num_trials(i), 2) ~= 0
-        num_trials(i,1) = 1 + floor(num_trials(i,1)/2);
-    else
-        num_trials(i,1) = floor(num_trials(i,1)/2);
-    end
+if sess_config == 1 || sess_config == 2
+    short_trials = vr_world == 3;
+    short_position = position(short_trials,:);
+    short_num_trials = num_trials(short_trials,:);
+    short_licks = find(licks(short_trials));
+    total_short_trials = length(unique(short_num_trials));
+    landmark_location = 200;
+    
+    long_trials = vr_world == 4;
+    long_position = position(long_trials,:);
+    long_num_trials = num_trials(long_trials);
+    long_licks = find(licks(long_trials,:));
+    total_long_trials = length(unique(long_num_trials));
+    landmark_location = 200;
+    
 end
 
-for i = 1:length(data)
-    % Acknowledge those licks!
-    if lick(i) == 1
-        licked(i) = true;
-    end
+if sess_config == 6
+    short_trials = vr_world == 7;
+    short_position = position(short_trials,:);
+    short_num_trials = num_trials(short_trials,:);
+    short_licks = fidn(licks(short));
+    total_short_trials = length(unique(num_trials_short));
+    landmark_location = 200;
     
-    if vr_world(i) == 3
-        short_trials(i) = num_trials(i);
-        short_position(i) = position(i);
-    end
+    long_trials = vr_world == 9;
+    long_position = position(long_trials,:);
+    long_num_trials = num_trials(long_trials);
+    long_licks = find(licks(long_trials,:));
+    total_long_trials = length(unique(long_num_trials));
+    landmark_location = 200;
     
-    if vr_world(i) == 4
-        long_trials(i) = num_trials(i);
-        long_position(i) = position(i);
-    end
-    
-    if valve_status(i) ~= 0
-        licked(i) = false;
-        if valve_status(i) == 2
-            default(i) = true;
-        elseif valve_status(i) == 1
-            triggered(i) = true;
-        end
-    end
 end
 
 % set ylim value to change depending on the amount of trials
 total_trials = (num_trials(end));
 y = total_trials;
+
+%% Reward: Triggered vs. Default @ Madison Square Garden
+valve_change = diff(valve_status);
+
+temp_triggered = zeros(lines,1);
+for i = 1:lines
+    if valve_change(i) == 1
+        temp_triggered(i) = valve_change(i);
+    end
+end
+
+temp_default = zeros(lines,1);
+for i = 1:lines
+    if valve_change(i) == 2
+        temp_triggered(i-1) = 1;
+    end
+end
+
+temp_triggered = logical([temp_triggered;0]);
+temp_default = logical([temp_default;0]);
+
+triggered_short_index = find(temp_triggered(short_trials));
+triggered_long_index = find(temp_triggered(long_trials));
+default_short_index = find(temp_default(short_trials));
+default_long_index = find(temp_default(long_trials));
 
 %% Average velocity
 
@@ -130,45 +145,58 @@ for i = 1:length(velocity)-1
 end
 
 velocities = tempV(tempV ~= 0);   % Holds velocities over thresholds
-avg_velocity = sum(velocities)/length(velocities);
+average_velocity = sum(velocities)/length(velocities);
+
+%% Set up data for plotting
+% Licks throughout the trial
+short_position_licks = short_position(short_licks);
+short_trial_licks = num_trials_short(short_licks);
+long_position_licks = long_position(long_licks);
+long_trial_licks = num_trials_long(long_licks);
+
+% Triggered rewards
+short_position_triggered = short_position(triggered_short_index);
+short_trial_triggered = short_num_trials(triggered_short_index);
+long_position_triggered = long_position(triggered_long_index);
+long_trial_triggered = long_num_trials(triggered_long_index);
+
+% Default rewards
+short_position_default = short_position(default_short_index);
+short_trial_default = short_num_trials(default_short_index);
+long_position_default = long_position(default_long_index);
+long_trial_default = long_num_trials(default_long_index);
 
 %% First lick per trial
 
-position_short_vector = zeros(length(data),2);
-position_long_vector = zeros(length(data),2);
+short_trial_position_matrix = [short_position_licks(short_position_licks >= landmark_location), ...
+    short_trial_licks(short_position_licks >= landmark_location)];
+[~,is,~] = unique(short_trial_licks(short_position_licks >= landmark_location));
+short_first_licks = short_trial_position_matrix(is,:);
 
-for i = 1:length(data)
-    if short_position(i) >= 200 && licked(i) ~= 0
-        position_short_vector(i,:) = [short_position(licked(i)), short_trials(licked(i))];
-        [~,first_lick_index_short(i,:),~] = unique(position_short_vector(i));
-        first_lick_short(i,:) = position_short_vector(first_lick_index_short(i));
-    end
-    
-    if long_position(i) >= 200 && licked(i) ~= 0
-        position_long_vector(i,:) = [long_position(licked(i)), long_trials(licked(i))];
-        [~,first_lick_index_long(i,:),~] = unique(position_long_vector(i));
-        first_lick_long(i,:) = position_long_vector(first_lick_index_long(i));
-    end
+long_trial_position_matrix = [long_position_licks(long_position_licks >= landmark_location), ...
+    long_trial_licks(long_position_licks >= landmark_location)];
+[~,il,~] = unique(long_trial_licks(long_position_licks >= landmark_location));
+long_first_licks = long_trial_position_matrix(il,:);
+
+if max(short_first_licks(:,1)) ~= 0
+    short_average_first_lick = mean(short_first_licks(:,1));
+else
+    short_average_first_lick = 0;
 end
 
-% stage 5
-if max(first_lick_short(:,1)) ~= 0
-    average_first_lick_short = mean(first_lick_short(:,1));
+if max(long_first_licks(:,1)) ~= 0
+    long_average_first_lick = mean(long_first_licks(:,1));
 else
-    average_first_lick_short = 0;
-end
-
-if max(first_lick_long(:,1)) ~= 0
-    average_first_lick_long = mean(first_lick_long(:,1));
-else
-    average_first_lick_long = 0;
+    long_average_first_lick = 0;
 end
 
 if average_first_lick_long == 0
-    average_first_lick = average_first_lick_short;
+    average_first_licks = average_frist_lick_short;
 else
-    average_first_lick = (average_first_lick_short + average_first_lick_long)/2;
+    average_first_licks = (short_average_first_lick + long_average_first_lick)/2;
 end
+
+median_first_licks = median([short_first_licks(:,1); long_first_licks(:,1)], 'omitnan');
 
 %% Figure setup
 figure
@@ -191,11 +219,11 @@ figure
     annotation('rectangle', [.542 .445 .019 .48],'FaceColor', 'blue','FaceAlpha',.1)
     
     % Plot licks on short track
-    plot(short_position, short_trials, 'bo');
+    line('XData',[short_position_licks,short_position_licks],'YData',[short_trial_licks,short_trials_licks], 'LineStyle','none','Marker','o','MarkerEdgeColor','b');
     
-    plot(short_position(triggered), short_trials(triggered), 'g*');
+    line('XData',[short_position_triggered,short_position_triggered],'YData',[short_trial_triggered,short_trial_triggered],'LineStyle','none','Marker','*','MarkerEdgeColor','g');
     
-    plot(short_position(default), short_trials(default), 'r*');
+    line('XData',[short_position_default,short_position_default],'YData',[short_trial_default,short_trial_default],'LineStyle','none','Marker','*','MarkerEdgeColor','r');
     
     % Long trials
     subplot(10,5,[4 30])
@@ -214,11 +242,11 @@ figure
     annotation('rectangle', [.874 .445 .016 .48],'FaceColor','magenta','FaceAlpha',.1)
     
     % Plot licks on long track
-    plot(long_position, long_trials, 'bo');
+    line('XData',[long_position_licks,long_position_licks],'YData',[long_trial_licks,long_trials_licks], 'LineStyle','none','Marker','o','MarkerEdgeColor','b');
     
-    plot(long_position(triggered), long_trials(triggered), 'g*');
+    line('XData',[long_position_triggered,long_position_triggered],'YData',[long_trial_triggered,long_trial_triggered],'LineStyle','none','Marker','*','MarkerEdgeColor','g');
     
-    plot(long_position(default),long_trials(default), 'r*');
+    line('XData',[long_position_default,long_position_default],'YData',[long_trial_default,long_trial_default],'LineStyle','none','Marker','*','MarkerEdgeColor','r');
     
     % First licks
     subplot(10,5,[37 50])
@@ -239,10 +267,10 @@ figure
     annotation('rectangle', [.799 .11 .0522 .227], 'FaceColor','magenta','FaceAlpha',.1)
     
     % Short track's first licks
-    plot(first_lick_short(:,1), first_lick_short(:,2), 'bo');
+    line('XData',[short_first_licks(:,1),short_first_licks(:,1)],'YData',[short_first_licks(:,2),short_first_licks(:,2)],'LineStyle','none','Marker','o','MarkerEdgeColor', 'b');
     
     % Long track's first licks
-    plot(first_lick_long(:,1), first_lick_long(:,2), 'ro');
+    line('XData',[long_first_licks(:,1),long_first_licks(:,1)], first_lick_long(:,2), 'ro');
     
     % Adds textbox for session information
     axes('Position', [0.02 0.07 1 1], 'Visible', 'off');

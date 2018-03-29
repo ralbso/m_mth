@@ -69,6 +69,11 @@ lick = data(:,8);               % Number of licks
 
 %% Your run of the mill setup for quick n' dirty plots
 
+if sess_config == 1 || sess_config == 2
+    short_trials = vr_world == 3;
+    short_position = position(short_trials,:);
+    number_of_trials
+    
 default = false(length(data),1);
 triggered = false(length(data),1);
 
