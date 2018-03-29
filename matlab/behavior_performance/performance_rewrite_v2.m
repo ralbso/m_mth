@@ -86,6 +86,12 @@ if sess_config == 1 || sess_config == 2
     total_long_trials = length(unique(long_num_trials));
     landmark_location = 200;
     
+    if sess_config == 1
+        total_trials = total_short_trials;
+    elseif sess_config == 2
+        total_trials = total_short_trials + total_long_trials;
+    end
+    
 end
 
 if sess_config == 6
@@ -103,24 +109,25 @@ if sess_config == 6
     total_long_trials = length(unique(long_num_trials));
     landmark_location = 200;
     
+    total_trials = total_short_trials + total_long_trials;
+    
 end
 
 % set ylim value to change depending on the amount of trials
-total_trials = (num_trials(end));
 y = total_trials;
 
 %% Reward: Triggered vs. Default @ Madison Square Garden
 valve_change = diff(valve_status);
 
 temp_triggered = zeros(lines,1);
-for i = 1:lines
+for i = 1:lines-1
     if valve_change(i) == 1
         temp_triggered(i) = valve_change(i);
     end
 end
 
 temp_default = zeros(lines,1);
-for i = 1:lines
+for i = 1:lines-1
     if valve_change(i) == 2
         temp_triggered(i-1) = 1;
     end
@@ -150,9 +157,9 @@ average_velocity = sum(velocities)/length(velocities);
 %% Set up data for plotting
 % Licks throughout the trial
 short_position_licks = short_position(short_licks);
-short_trial_licks = num_trials_short(short_licks);
+short_trial_licks = short_num_trials(short_licks);
 long_position_licks = long_position(long_licks);
-long_trial_licks = num_trials_long(long_licks);
+long_trial_licks = long_num_trials(long_licks);
 
 % Triggered rewards
 short_position_triggered = short_position(triggered_short_index);
@@ -190,7 +197,7 @@ else
     long_average_first_lick = 0;
 end
 
-if average_first_lick_long == 0
+if long_average_first_lick == 0
     average_first_licks = average_frist_lick_short;
 else
     average_first_licks = (short_average_first_lick + long_average_first_lick)/2;
@@ -199,7 +206,7 @@ end
 median_first_licks = median([short_first_licks(:,1); long_first_licks(:,1)], 'omitnan');
 
 %% Figure setup
-figure
+figure('Name',file_name,'Position',[680 400 560 420])
     
     % Short trials
     subplot(10,5,[2 28])
@@ -219,11 +226,11 @@ figure
     annotation('rectangle', [.542 .445 .019 .48],'FaceColor', 'blue','FaceAlpha',.1)
     
     % Plot licks on short track
-    line('XData',[short_position_licks,short_position_licks],'YData',[short_trial_licks,short_trials_licks], 'LineStyle','none','Marker','o','MarkerEdgeColor','b');
+    line([short_position_licks,short_position_licks],[short_trial_licks,short_trial_licks], 'LineStyle','none','Marker','o','MarkerEdgeColor','b');
     
-    line('XData',[short_position_triggered,short_position_triggered],'YData',[short_trial_triggered,short_trial_triggered],'LineStyle','none','Marker','*','MarkerEdgeColor','g');
+    line([short_position_triggered,short_position_triggered],[short_trial_triggered,short_trial_triggered],'LineStyle','none','Marker','*','MarkerEdgeColor','g');
     
-    line('XData',[short_position_default,short_position_default],'YData',[short_trial_default,short_trial_default],'LineStyle','none','Marker','*','MarkerEdgeColor','r');
+    line([short_position_default,short_position_default],[short_trial_default,short_trial_default],'LineStyle','none','Marker','*','MarkerEdgeColor','r');
     
     % Long trials
     subplot(10,5,[4 30])
@@ -242,16 +249,15 @@ figure
     annotation('rectangle', [.874 .445 .016 .48],'FaceColor','magenta','FaceAlpha',.1)
     
     % Plot licks on long track
-    line('XData',[long_position_licks,long_position_licks],'YData',[long_trial_licks,long_trials_licks], 'LineStyle','none','Marker','o','MarkerEdgeColor','b');
+    line([long_position_licks,long_position_licks],[long_trial_licks,long_trial_licks], 'LineStyle','none','Marker','o','MarkerEdgeColor','b');
     
-    line('XData',[long_position_triggered,long_position_triggered],'YData',[long_trial_triggered,long_trial_triggered],'LineStyle','none','Marker','*','MarkerEdgeColor','g');
+    line([long_position_triggered,long_position_triggered],[long_trial_triggered,long_trial_triggered],'LineStyle','none','Marker','*','MarkerEdgeColor','g');
     
-    line('XData',[long_position_default,long_position_default],'YData',[long_trial_default,long_trial_default],'LineStyle','none','Marker','*','MarkerEdgeColor','r');
+    line([long_position_default,long_position_default],[long_trial_default,long_trial_default],'LineStyle','none','Marker','*','MarkerEdgeColor','r');
     
     % First licks
     subplot(10,5,[37 50])
     
-    legend('Short track', 'Long track')
     xlabel('Location (cm)')
     xlim([190 420])
     ylim([0 y])
@@ -267,10 +273,12 @@ figure
     annotation('rectangle', [.799 .11 .0522 .227], 'FaceColor','magenta','FaceAlpha',.1)
     
     % Short track's first licks
-    line('XData',[short_first_licks(:,1),short_first_licks(:,1)],'YData',[short_first_licks(:,2),short_first_licks(:,2)],'LineStyle','none','Marker','o','MarkerEdgeColor', 'b');
+    line([short_first_licks(:,1),short_first_licks(:,1)],[short_first_licks(:,2),short_first_licks(:,2)],'LineStyle','none','Marker','o','MarkerEdgeColor', 'b');
     
     % Long track's first licks
-    line('XData',[long_first_licks(:,1),long_first_licks(:,1)],'YData', [long_first_licks(:,2),long_first_licks(:,2)],'LineStyle','none','Marker','o','MarkerEdgeColor','r');
+    line([long_first_licks(:,1),long_first_licks(:,1)],[long_first_licks(:,2),long_first_licks(:,2)],'LineStyle','none','Marker','o','MarkerEdgeColor','r');
+    
+    legend(['Short track'], ['Long track'])
     
     % Adds textbox for session information
     axes('Position', [0.02 0.07 1 1], 'Visible', 'off');
