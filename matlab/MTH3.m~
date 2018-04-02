@@ -192,9 +192,9 @@ function vr = initializationCodeFun(vr)
     vline([380 400], {'k', 'k'})
     annotation('rectangle', [0.895 0.195 0.05 0.35],'FaceColor','magenta','FaceAlpha',.1)
     
-    vr.trials = 0;
+    vr.trials_per_minute = 0;
     
-    stats = annotation('textbox', [0.15 0.1 0.2 0], 'string', 'Trials per minute: ');
+    stats = annotation('textbox', [0.15 0.1 0.2 0], 'string', ['Trials per minute: ' vr.trials_per_minute]);
     stats.FontSize = 14;
     stats.LineStyle = 'none';
     
@@ -392,7 +392,7 @@ function vr = runtimeCodeFun(vr)
         % start blackbox timer
         vr.blackbox_3_tic = tic;
         % update trials per minute
-        vr.trials = vr.trials + 1;
+        % vr.trials = vr.trials + 1;
            
     end
     
@@ -419,6 +419,9 @@ function vr = runtimeCodeFun(vr)
         vr.lastWorld = vr.data(vr.line-2,5);
         vr.lastPosition = vr.data(vr.line-2,2);
     end
+    
+    if mod(int8(toc(vr.sesstic)),60) == 0
+        vr.
     
     if trial_counter > 150
         vr.short_plot.YLim = [151 200];
@@ -450,14 +453,6 @@ function vr = runtimeCodeFun(vr)
 %             end
         end
     end
-    
-    if mod(int8(toc(vr.sesstic)),60) == 0
-        vr.trials_per_minute = (vr.trials)/60;
-        vr.trials = 0;
-    end
-    
-    annotation('textbox', [0.17 0.1 0.2 0], 'string', vr.trials_per_minute);
-    
 
     % check if maximum session length is reached and terminate VR if it is
     if toc(vr.sesstic) > (vr.config.s_length*60)
