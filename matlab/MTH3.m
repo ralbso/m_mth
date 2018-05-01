@@ -192,7 +192,9 @@ function vr = initializationCodeFun(vr)
     vline([380 400], {'k', 'k'})
     annotation('rectangle', [0.895 0.195 0.05 0.35],'FaceColor','magenta','FaceAlpha',.1)
     
-    vr.trials = 0;
+%     vr.trials_per_min = 0;
+%     vr.trials = 0;
+%     vr.counter = 0;
     
     stats = annotation('textbox', [0.15 0.1 0.2 0], 'string', 'Trials per minute: ');
     stats.FontSize = 14;
@@ -392,7 +394,7 @@ function vr = runtimeCodeFun(vr)
         % start blackbox timer
         vr.blackbox_3_tic = tic;
         % update trials per minute
-        vr.trials = vr.trials + 1;
+        % vr.trials = vr.trials + 1;
            
     end
     
@@ -411,7 +413,11 @@ function vr = runtimeCodeFun(vr)
     elseif ~vr.is_blackbox
         trial_counter = 1 + floor(vr.trial_counter/2);
     end
-          
+    
+%     if mod(secs,60) == 0
+%         vr.trials_per_min = vr.trial_counter/60;
+%     end
+%         
     vr.lastWorld = 0;
     vr.lastPosition = 0;
     
@@ -420,7 +426,13 @@ function vr = runtimeCodeFun(vr)
         vr.lastPosition = vr.data(vr.line-2,2);
     end
     
-    if trial_counter > 150
+    if trial_counter > 250
+        vr.short_plot.YLim = [251 300];
+        vr.long_plot.YLim = [251 300];
+    elseif trial_counter > 200 && trial_counter <= 250
+        vr.short_plot.YLim = [201 250];
+        vr.long_plot.YLim = [201 250];
+    elseif trial_counter > 150 && trial_counter <= 200
         vr.short_plot.YLim = [151 200];
         vr.long_plot.YLim = [151 200];
     elseif trial_counter > 100 && trial_counter <= 150
@@ -439,25 +451,17 @@ function vr = runtimeCodeFun(vr)
     if vr.valvestat ~= 0
         if vr.time_in_blackbox >= 1.5
             % do or do not, there is no
-%             try
+             try
                 live_performance(vr.live_line, vr.live_data, vr.short_plot, vr.long_plot)
                 vr.live_line = 1;
-%             catch
-%                 dlmwrite(vr.config.fname,vr.data(1:vr.numframes,:),';');
-%                 fclose(vr.mc);
-%                 delete(vr.mc);
-%                 warning('error plotting live performance')
-%             end
+             catch
+                 dlmwrite(vr.config.fname,vr.data(1:vr.numframes,:),';');
+                 fclose(vr.mc);
+                 delete(vr.mc);
+                 warning('error plotting live performance')
+             end
         end
     end
-    
-    if mod(int8(toc(vr.sesstic)),60) == 0
-        vr.trials_per_minute = (vr.trials)/60;
-        vr.trials = 0;
-    end
-    
-    annotation('textbox', [0.17 0.1 0.2 0], 'string', vr.trials_per_minute);
-    
 
     % check if maximum session length is reached and terminate VR if it is
     if toc(vr.sesstic) > (vr.config.s_length*60)
@@ -485,5 +489,5 @@ function vr = terminationCodeFun(vr)
     %    end
     %end
     
-    performance(0)
+    performance(0);
 end
